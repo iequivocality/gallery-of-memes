@@ -7,22 +7,6 @@ const images = [
 ]
 
 /**
- * Create texture loader for images
- */
-const textureLoader = new THREE.TextureLoader();
-
-/**
- * Renders the scene to canvas element
- */
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setAnimationLoop( animate );
-/**
- * Add the canvas element to the DOM
- */
-document.body.appendChild( renderer.domElement );
-
-/**
  * Create a scene where 3d objects, lights and cameras are added.
  * Hierarchy, where the scene is the top-level parent.
  */
@@ -51,17 +35,6 @@ scene.add(rootNode);
 const count = 6;
 for (let i = 0; i < count; i++) {
   /**
-   * Add textures to the artwork by loading the images.
-   * For now, I'll just use a single image for all artworks.
-   */
-  const texture = textureLoader.load(images[0]);
-  /**
-   * Set the color space so that it does not look desaturated.
-   * srgb is the default color space that we will be using.
-   */
-  texture.colorSpace = THREE.SRGBColorSpace;
-
-  /**
    * We need to create a "base node" for which the children (artworks) will be added.
    * The children will inherit the transformations of the base node.
    * 
@@ -73,19 +46,12 @@ for (let i = 0; i < count; i++) {
   artworkBaseNode.rotation.y = i * ( 2 * Math.PI / count );
   rootNode.add(artworkBaseNode);
 
-  const border = new THREE.Mesh(
-    new THREE.BoxGeometry(3.2, 2.2, 0.08),
-    new THREE.MeshBasicMaterial({ color: 0x404040 })
-  );
-  border.position.z = -4;
-  artworkBaseNode.add(border); 
-
   /**
-   * Add the artwork to the scene. We will replace the color with map.
+   * Add the artwork to the scene
    */
   const artwork = new THREE.Mesh(
     new THREE.BoxGeometry(3, 2, 0.1),
-    new THREE.MeshBasicMaterial({ map: texture })
+    new THREE.MeshBasicMaterial({ color: 0xf0ff00 })
   );
 
   /** Since the artwork was added on 0,0,0 initally, move it slightly backward */
@@ -94,9 +60,15 @@ for (let i = 0; i < count; i++) {
 }
 
 /**
- * Added an acceleration factor
+ * Renders the scene to canvas element
  */
-let lespeed = 0.004;
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setAnimationLoop( animate );
+/**
+ * Add the canvas element to the DOM
+ */
+document.body.appendChild( renderer.domElement );
 
 /**
  * Animation function that is called every frame.
@@ -105,17 +77,9 @@ function animate() {
   /**
    * Temporary rotation to demonstrate the added artwork mesh on the screen
    */
-  rootNode.rotation.y += lespeed;
+  rootNode.rotation.y += 0.001;
 	renderer.render( scene, camera );
 }
-
-/**
- * Increase rotation velocity by 0.004 every two seconds.
- * Commented out for now.
- */
-// setInterval(() => {
-//   lespeed += 0.004;
-// }, 2000);
 
 /**
  * Add listener to update the renderer size when the window is resized.
