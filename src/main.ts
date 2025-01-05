@@ -77,9 +77,13 @@ for (let i = 0; i < count; i++) {
   artworkBaseNode.rotation.y = i * ( 2 * Math.PI / count );
   rootNode.add(artworkBaseNode);
 
+  /**
+   * Forgot to document adding the border.
+   * We added a border mesh that is slightly larger than the artwork mesh.
+   */
   const border = new THREE.Mesh(
     new THREE.BoxGeometry(3.2, 2.2, 0.08),
-    new THREE.MeshBasicMaterial({ color: 0x404040 })
+    new THREE.MeshStandardMaterial({ color: 0x404040 })
   );
   border.position.z = -4;
   artworkBaseNode.add(border); 
@@ -89,7 +93,7 @@ for (let i = 0; i < count; i++) {
    */
   const artwork = new THREE.Mesh(
     new THREE.BoxGeometry(3, 2, 0.1),
-    new THREE.MeshBasicMaterial({ map: texture })
+    new THREE.MeshStandardMaterial({ map: texture })
   );
 
   /** Since the artwork was added on 0,0,0 initally, move it slightly backward */
@@ -103,6 +107,45 @@ for (let i = 0; i < count; i++) {
 let lespeed = 0.004;
 
 /**
+ * Increase rotation velocity by 0.004 every two seconds.
+ * Commented out for now.
+ */
+// setInterval(() => {
+//   lespeed += 0.004;
+// }, 2000);
+
+/**
+ * There are many types of light we can use on the Three JS scene.
+ * 
+ * AmbientLight - light everything uniformly
+ * DirectionalLight - lights from a specific direction (like a sun)
+ * PointLight - like a light bulb in a dark basement
+ * 
+ * However, we will be using SpotLight, which is a light that is projected from a point in space.
+ * 
+ * Add SpotLight to the scene. In order to have lighting on the scene, 
+ * we need to convert the MeshBasicMaterial to MeshStandardMaterial because
+ * MeshBasicMaterial does not take into account lighting.
+ * 
+ * color
+ * intensity
+ * distance
+ * angle (in radians)
+ * penumbra (the higher the value, the more the light is spread out on the edges)
+ * decay (not set in this instance)
+ * 
+ * Initially, the spotlight is set on 0,0,0 so when MeshStandardMaterial is used,
+ * the we do not see anything. We need to set the position of the light first to make sure they are pointed on the artwork.
+ * 
+ * We can also set the spotlight's target. We also need to add the target to the scene.
+ */
+const spotLight = new THREE.SpotLight( 0xffffff, 100.0, 10.0, 0.65, 0.6 );
+spotLight.position.set(0, 5, 0);
+spotLight.target.position.set(0, 0.5, -5);
+scene.add( spotLight.target )
+scene.add( spotLight );
+
+/**
  * Animation function that is called every frame.
  */
 function animate() {
@@ -112,14 +155,6 @@ function animate() {
   rootNode.rotation.y += lespeed;
 	renderer.render( scene, camera );
 }
-
-/**
- * Increase rotation velocity by 0.004 every two seconds.
- * Commented out for now.
- */
-// setInterval(() => {
-//   lespeed += 0.004;
-// }, 2000);
 
 /**
  * Add listener to update the renderer size when the window is resized.
