@@ -4,6 +4,10 @@ import * as THREE from 'three';
 
 const images = [
   "max_verstappen.jpg",
+  "you_luke_huge.png",
+  "mercy.jpg",
+  "def_hop_on_later.png",
+  "groundbreaking.jpg",
 ]
 
 /**
@@ -48,13 +52,13 @@ scene.add(rootNode);
  * We will iterate and add six artworks to the scene following the hierarchy
  * illustrated earlier.
  */
-const count = 6;
+const count = images.length;
 for (let i = 0; i < count; i++) {
   /**
    * Add textures to the artwork by loading the images.
    * For now, I'll just use a single image for all artworks.
    */
-  const texture = textureLoader.load(images[0]);
+  const texture = textureLoader.load(images[i]);
   /**
    * Set the color space so that it does not look desaturated.
    * srgb is the default color space that we will be using.
