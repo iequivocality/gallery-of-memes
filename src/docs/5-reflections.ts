@@ -44,17 +44,10 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 
 /**
  * We will follow a simple hierarchy of objects.
- * Scene -> RootNode -> (Artwork) -> ArtworkBaseNode -> Artwork
- *                                                   -> Left & Right Arrows         
+ * Scene -> RootNode -> (Artwork) -> ArtworkBaseNode -> Artwork 
  */
 const rootNode = new THREE.Object3D();
 scene.add(rootNode);
-
-/**
- * Let us get the texture for the left and right arrow.
- */
-const leftArrowTexture = textureLoader.load("chevron-left.png");
-const rightArrowTexture = textureLoader.load("chevron-right.png");
 
 /**
  * We will iterate and add six artworks to the scene following the hierarchy
@@ -107,29 +100,6 @@ for (let i = 0; i < count; i++) {
   /** Since the artwork was added on 0,0,0 initally, move it slightly backward */
   artwork.position.z = -4;
   artworkBaseNode.add(artwork);
-
-  /** 
-   * Let us add the left and right arrow meshes
-   * We will use a plane geometry so we do not see the arrow on the sides when using
-   * BoxGeometry. We can use the texture loader to load the texture - chevron-left.png
-   * and chevron-right.png. We can load outside the for loop for performance.
-   * 
-   * We set transparency to true so that we can take into account the alpha channel
-   * of the texture loaded from the PNG files. The positions are adjusted to the desired coordinates.
-   */
-  const leftArrow = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.3, 0.3),
-    new THREE.MeshStandardMaterial({ map: leftArrowTexture, transparent: true })
-  );
-  leftArrow.position.set(-1.75, 0, -4);
-  artworkBaseNode.add(leftArrow);
-
-  const rightArrow = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.3, 0.3),
-    new THREE.MeshStandardMaterial({ map: rightArrowTexture, transparent: true })
-  );
-  rightArrow.position.set(1.75, 0, -4);
-  artworkBaseNode.add(rightArrow);
 }
 
 /**
