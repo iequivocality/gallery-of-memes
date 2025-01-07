@@ -11,6 +11,9 @@ importers:
       three:
         specifier: ^0.172.0
         version: 0.172.0
+      tween:
+        specifier: ^0.9.0
+        version: 0.9.0
     devDependencies:
       '@types/three':
         specifier: ^0.171.0
@@ -327,6 +330,10 @@ packages:
   three@0.172.0:
     resolution: {integrity: sha512-6HMgMlzU97MsV7D/tY8Va38b83kz8YJX+BefKjspMNAv0Vx6dxMogHOrnRl/sbMIs3BPUKijPqDqJ/+UwJbIow==}
 
+  tween@0.9.0:
+    resolution: {integrity: sha512-/Wpqy/fkHzp8VJ0kh52Lssett+5o1X6XaLLZIDFI4Biuk6GEgyGZPihq1zNR9wjj+PcgYCPheV5gxMXyKgtZsw==}
+    deprecated: Use official tween.js package
+
   typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
@@ -598,6 +605,8 @@ snapshots:
   source-map-js@1.2.1: {}
 
   three@0.172.0: {}
+
+  tween@0.9.0: {}
 
   typescript@5.6.3: {}
 

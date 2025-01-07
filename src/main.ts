@@ -1,7 +1,9 @@
 import './style.css'
 
 import * as THREE from 'three';
-import { Reflector } from 'three/examples/jsm/Addons.js'; 
+import { Reflector } from 'three/examples/jsm/Addons.js';
+// @ts-ignore
+import { Tween, Easing, update as updateTween } from 'tween';
 
 const images = [
   "max_verstappen.jpg",
@@ -93,6 +95,7 @@ for (let i = 0; i < count; i++) {
     new THREE.BoxGeometry(3.1, 2.1, 0.08),
     new THREE.MeshStandardMaterial({ color: 0x404040 })
   );
+  border.name = `Border_${i}`
   border.position.z = -4;
   artworkBaseNode.add(border); 
 
@@ -106,6 +109,7 @@ for (let i = 0; i < count; i++) {
 
   /** Since the artwork was added on 0,0,0 initally, move it slightly backward */
   artwork.position.z = -4;
+  artwork.name = `Artwork_${i}`
   artworkBaseNode.add(artwork);
 
   /** 
@@ -116,11 +120,15 @@ for (let i = 0; i < count; i++) {
    * 
    * We set transparency to true so that we can take into account the alpha channel
    * of the texture loaded from the PNG files. The positions are adjusted to the desired coordinates.
+   * 
+   * We also added names to the meshes so that we can easily find them later, for intersections and
+   * what not.
    */
   const leftArrow = new THREE.Mesh(
     new THREE.PlaneGeometry(0.3, 0.3),
     new THREE.MeshStandardMaterial({ map: leftArrowTexture, transparent: true })
   );
+  leftArrow.name = `LeftArrow`
   leftArrow.position.set(-1.75, 0, -4);
   artworkBaseNode.add(leftArrow);
 
@@ -128,16 +136,18 @@ for (let i = 0; i < count; i++) {
     new THREE.PlaneGeometry(0.3, 0.3),
     new THREE.MeshStandardMaterial({ map: rightArrowTexture, transparent: true })
   );
+  rightArrow.name = `RightArrow`
   rightArrow.position.set(1.75, 0, -4);
   artworkBaseNode.add(rightArrow);
 }
 
 /**
- * Added an acceleration factor
+ * No longer used as we turned off automatic rotation
  */
 let lespeed = 0.004;
 
 /**
+ * Added an acceleration factor
  * Increase rotation velocity by 0.004 every two seconds.
  * Commented out for now.
  */
@@ -202,13 +212,46 @@ mirror.rotateX(-Math.PI / 2);
 scene.add(mirror);
 
 /**
+ * We would want to rotate the gallery every time the user clicks on the left or right arrow.
+ * We will add a function to rotate the gallery.
+ * 
+ * We will rotate the gallery by the direction multiplied by 2 * PI / count,
+ * which is the angle between each artwork, in radians.
+ * 
+ */
+function rotateGallery(direction: -1 | 1) {
+  /**
+   * This currently does not have any tweening/animation effect.
+   * 
+   * We will comment this out later.
+   */
+  // rootNode.rotateY(direction * (2 * Math.PI / count));
+
+  const deltaY = direction * (2 * Math.PI / count);
+
+  /**
+   * For now we will use Tween but we can also use other animation libraries like GSAP.
+   */
+  new Tween(rootNode.rotation)
+    .to({ y: rootNode.rotation.y + deltaY })
+    .easing(Easing.Quadratic.InOut)
+    .start();
+}
+
+/**
  * Animation function that is called every frame.
  */
 function animate() {
   /**
    * Temporary rotation to demonstrate the added artwork mesh on the screen
+   * We commented it out to start working on raycasting.
    */
-  rootNode.rotation.y += lespeed;
+  // rootNode.rotation.y += lespeed;
+
+  /**
+   * We will update the tweens on the animate loop for the rotation of the gallery.
+   */
+  updateTween();
 	renderer.render( scene, camera );
 }
 
@@ -229,4 +272,56 @@ window.addEventListener( 'resize', () => {
    * as well.
    */
   mirror.getRenderTarget().setSize(window.innerWidth, window.innerHeight);
+});
+
+/**
+ * In order to allow interactions with the scene, we need to add a raycaster
+ * to the scene. The raycaster will be used to detect intersections with the
+ * objects in the scene.
+ * 
+ * For now, we will not check which mouse button is clicked.
+ */
+window.addEventListener('click', (e) => {
+  const raycaster = new THREE.Raycaster();
+
+  /**
+   * We need to pass normalized device coordinates (NDC) to the raycaster.
+   * NDC is a coordinate system that is normalized to the range of -1 to 1.
+   * 
+   * This formula is 
+   * (e.clientX / window.innerWidth) * 2 - 1 - left (-1) to right (1)
+   * -(e.clientY / window.innerHeight) * 2 + 1 - top (-1), bottom (1)
+   * 
+   * We are putting 0,0 in the middle of the screen instead of putting 0,0 on
+   * the top left of the screen.
+   */
+  const mouseNDC = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+
+  /**
+   * We are basically setting the position from which we will casting the ray.
+   */
+  raycaster.setFromCamera(mouseNDC, camera);
+
+  /**
+   * We will check from the rootNode to see if there is an intersection.
+   * We will set the second parameter to true so that we can recurvisely check
+   * the intersections through rootNode's children.
+   * 
+   * intersectObjects will return the list of objects intersected, sorted by distance.
+   * To easier check which object was intersected, we will name all the artwork
+   * elements and the arrow as well.
+   */
+  const intersections = raycaster.intersectObjects(rootNode.children, true);
+  if (intersections.length > 0) {
+    if (intersections[0].object.name === "LeftArrow") {
+      console.log("Left Arrow clicked");
+      rotateGallery(-1);
+    } else if (intersections[0].object.name === "RightArrow") {
+      console.log("Right Arrow clicked");
+      rotateGallery(1);
+    }
+  }
 });
