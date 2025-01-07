@@ -4,8 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gallery of Memes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;600&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+      }
+
+      h1, h2 {
+        position: fixed;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Poppins', sans-serif;
+        font-weight: 200;
+
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      h1 {
+        top: 2rem;
+        font-weight: 200;
+        font-size: 2rem;
+      }
+
+      h2 {
+        top: 5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    </style>
   </head>
   <body>
+    <h1 id="title"></h1>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

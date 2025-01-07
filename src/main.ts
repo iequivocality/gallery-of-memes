@@ -6,11 +6,31 @@ import { Reflector } from 'three/examples/jsm/Addons.js';
 import { Tween, Easing, update as updateTween } from 'tween';
 
 const images = [
-  "max_verstappen.jpg",
-  "you_luke_huge.png",
-  "mercy.jpg",
-  "def_hop_on_later.png",
-  "groundbreaking.jpg",
+  {
+    title: "Max Verstappen",
+    artist: "Max Verstappen",
+    image: "max_verstappen.jpg",
+  },
+  {
+    title: "You Luke Huge",
+    artist: "You Luke",
+    image: "you_luke_huge.png",
+  },
+  {
+    title: "Mercy",
+    artist: "Mercy",
+    image: "mercy.jpg",
+  },
+  {
+    title: "Def Hop On Later",
+    artist: "Def Hop On Later",
+    image: "def_hop_on_later.png",
+  },
+  {
+    title: "Groundbreaking",
+    artist: "Groundbreaking",
+    image: "groundbreaking.jpg",
+  }
 ]
 
 /**
@@ -68,7 +88,7 @@ for (let i = 0; i < count; i++) {
    * Add textures to the artwork by loading the images.
    * For now, I'll just use a single image for all artworks.
    */
-  const texture = textureLoader.load(images[i]);
+  const texture = textureLoader.load(images[i].image);
   /**
    * Set the color space so that it does not look desaturated.
    * srgb is the default color space that we will be using.
@@ -129,6 +149,9 @@ for (let i = 0; i < count; i++) {
     new THREE.MeshStandardMaterial({ map: leftArrowTexture, transparent: true })
   );
   leftArrow.name = `LeftArrow`
+  leftArrow.userData = {
+    index: i === count - 1 ? 0 : i + 1
+  };
   leftArrow.position.set(-1.75, 0, -4);
   artworkBaseNode.add(leftArrow);
 
@@ -137,6 +160,9 @@ for (let i = 0; i < count; i++) {
     new THREE.MeshStandardMaterial({ map: rightArrowTexture, transparent: true })
   );
   rightArrow.name = `RightArrow`
+  rightArrow.userData = {
+    index: i === 0 ? count - 1 : i - 1
+  };
   rightArrow.position.set(1.75, 0, -4);
   artworkBaseNode.add(rightArrow);
 }
@@ -219,7 +245,7 @@ scene.add(mirror);
  * which is the angle between each artwork, in radians.
  * 
  */
-function rotateGallery(direction: -1 | 1) {
+function rotateGallery(direction: -1 | 1, newIndex: number) {
   /**
    * This currently does not have any tweening/animation effect.
    * 
@@ -231,11 +257,21 @@ function rotateGallery(direction: -1 | 1) {
 
   /**
    * For now we will use Tween but we can also use other animation libraries like GSAP.
+   * 
+   * We also add some opacity transitions to the title and artist text.
    */
   new Tween(rootNode.rotation)
     .to({ y: rootNode.rotation.y + deltaY })
     .easing(Easing.Quadratic.InOut)
-    .start();
+    .start()
+    .onStart(() => {
+      document.getElementById("title")!.style.opacity = "0";
+    })
+    .onComplete(() => {
+      document.getElementById("title")!.innerText = images[newIndex].title;
+
+      document.getElementById("title")!.style.opacity = "1";
+    });
 }
 
 /**
@@ -316,12 +352,16 @@ window.addEventListener('click', (e) => {
    */
   const intersections = raycaster.intersectObjects(rootNode.children, true);
   if (intersections.length > 0) {
-    if (intersections[0].object.name === "LeftArrow") {
+    const obj = intersections[0].object;
+    const newIndex = <number>obj.userData.index;
+    if (obj.name === "LeftArrow") {
       console.log("Left Arrow clicked");
-      rotateGallery(-1);
-    } else if (intersections[0].object.name === "RightArrow") {
+      rotateGallery(-1, newIndex);
+    } else if (obj.name === "RightArrow") {
       console.log("Right Arrow clicked");
-      rotateGallery(1);
+      rotateGallery(1, newIndex);
     }
   }
 });
+
+document.getElementById("title")!.innerText = images[0].title;
